@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f1220">
+  <meta name="description" content="パチスロ小役・ボーナスカウンタ。差枚・確率管理アプリ">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="小役カウンタ">
+  <title>パチスロ 小役カウンタ</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       Google AdSense
+       ① https://www.google.com/adsense でアカウント取得
+       ② 審査通過後、下記を自分のコードに差し替えてください
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
+</head>
+<body>
+
+<!-- ━━ MAIN PAGE ━━ -->
+<div class="page on" id="pg-main">
+
+  <!-- Header -->
+  <div class="hdr">
+    <button class="end-btn" onclick="showEnd()">稼働終了</button>
+    <div class="g-col">
+      <div class="g-lbl">打ち出しG数</div>
+      <input class="g-input" id="g-dashi" type="number" inputmode="numeric" value="0" min="0" oninput="onG()">
+      <div class="g-played" id="g-played-lbl">&nbsp;</div>
+    </div>
+    <div class="g-col">
+      <div class="g-lbl">現在G数</div>
+      <input class="g-input cur" id="gcur" type="number" inputmode="numeric" value="0" min="0" oninput="onG()">
+      <div class="g-played" style="color:var(--muted);font-size:10px;">&nbsp;</div>
+    </div>
+  </div>
+
+  <!-- 小役エリア -->
+  <div class="sh">
+    <span class="sh-title">小役カウンタ</span>
+    <span style="font-size:10px;color:var(--muted)">長押しで－1</span>
+  </div>
+  <div class="rgrid" id="rgrid"></div>
+
+  <hr class="divider">
+
+  <!-- ボーナスエリア -->
+  <div class="sh" style="padding-bottom:12px;">
+    <span class="sh-title">ボーナス</span>
+    <div class="seg">
+      <button class="seg-btn on" id="bm-s" onclick="setMode('simple')">数のみ</button>
+      <button class="seg-btn"    id="bm-d" onclick="setMode('detail')">重複まで</button>
+    </div>
+  </div>
+  <div id="bonus-wrap"></div>
+
+  <!-- サマリー -->
+  <div class="msummary">
+    <div><div class="ms-lbl">ボーナス合計</div><div class="ms-val"><span id="s-bon">0</span><span class="u">回</span></div></div>
+    <div><div class="ms-lbl">ボーナス確率</div><div class="ms-val">1/<span id="s-bp">---</span></div></div>
+    <div><div class="ms-lbl">小役合計</div><div class="ms-val"><span id="s-rol">0</span><span class="u">回</span></div></div>
+    <div><div class="ms-lbl">実プレイG数</div><div class="ms-val"><span id="s-g">0</span><span class="u">G</span></div></div>
+  </div>
+
+  <!-- ━━ 広告バナー ━━
+       AdSense審査通過後、下記コメントを外してください
+  -->
+  <div class="ad-banner">
+    <!-- AdSense バナー広告 (320×50 または レスポンシブ) -->
+    <!--
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+      data-ad-slot="XXXXXXXXXX"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    -->
+    <span class="ad-placeholder">広告エリア (AdSense)</span>
+  </div>
+
+</div><!-- /pg-main -->
+
+
+<!-- ━━ HISTORY PAGE ━━ -->
+<div class="page" id="pg-hist">
+  <div class="ph">
+    📊 履歴・統計
+    <button class="past-add-btn" onclick="showPastForm()">＋ 過去データを追加</button>
+  </div>
+  <div id="hist-content">
+    <div class="empty">まだデータがありません。<br>稼働終了して保存すると表示されます。</div>
+  </div>
+</div>
+
+
+<!-- ━━ SETTINGS PAGE ━━ -->
+<div class="page" id="pg-set">
+  <div class="ph" style="display:block">⚙️ 設定</div>
+  <div class="set-section">
+    <div class="set-lbl">機種プリセット</div>
+    <div class="set-val">黄金郷〜白頭の軌跡〜</div>
+    <div class="set-note">機種追加は今後のアップデートで対応予定</div>
+  </div>
+  <div class="set-section">
+    <div class="set-lbl">デフォルト千円貸出枚数</div>
+    <input style="background:var(--s3);border:1.5px solid var(--br);border-radius:8px;color:var(--gold2);font-size:18px;font-weight:800;text-align:center;width:100px;padding:6px;font-family:'Courier New',monospace;outline:none;"
+      type="number" id="default-rate" value="50" min="1">
+  </div>
+  <div class="set-section">
+    <div class="set-lbl" style="margin-bottom:8px;">データ管理</div>
+    <button onclick="exportData()"
+      style="padding:9px 16px;background:rgba(232,168,58,.1);border:1.5px solid var(--br);border-radius:8px;color:var(--gold2);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px;">
+      📤 データをエクスポート
+    </button>
+  </div>
+  <div class="set-section" style="margin-top:10px;">
+    <div class="set-lbl">バージョン</div>
+    <div class="set-val" style="font-size:13px;">v1.0.0</div>
+  </div>
+</div>
+
+
+<!-- ━━ BOTTOM NAV ━━ -->
+<nav class="bnav">
+  <button class="nav-btn on" id="nav-main" onclick="goPage('main')">
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg>
+    カウンタ
+  </button>
+  <button class="nav-btn" id="nav-hist" onclick="goPage('hist')">
+    <svg viewBox="0 0 24 24"><path d="M3 3h18v2H3V3zm0 8h18v2H3v-2zm0 8h18v2H3v-2z"/></svg>
+    履歴
+  </button>
+  <button class="nav-btn" id="nav-set" onclick="goPage('set')">
+    <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 018.5 12 3.5 3.5 0 0112 8.5a3.5 3.5 0 013.5 3.5 3.5 3.5 0 01-3.5 3.5m7.43-2.92c.04-.36.07-.72.07-1.08s-.03-.73-.07-1.08l2.33-1.82-2.1-3.63-2.74 1.1A8 8 0 0015 5.5l-.42-2.9H9.42L9 5.5a8 8 0 00-1.92.97L4.34 5.37 2.24 9l2.33 1.82c-.04.35-.07.71-.07 1.08s.03.73.07 1.08L2.24 15l2.1 3.62 2.74-1.1c.6.38 1.24.68 1.92.98l.42 2.9h5.16l.42-2.9c.68-.3 1.32-.6 1.92-.98l2.74 1.1L21.76 15l-2.33-1.82z"/></svg>
+    設定
+  </button>
+</nav>
+
+
+<!-- ━━ 稼働終了オーバーレイ ━━ -->
+<div class="ov" id="ov-end">
+  <div class="obox">
+    <div class="otitle">稼働終了・記録</div>
+    <div class="osub" id="ov-summary"></div>
+
+    <div class="sm-block">
+      <div class="sm-block-title">差枚 計算</div>
+      <div class="sm-inputs">
+        <div class="sm-field">
+          <div class="sm-field-lbl">投資枚数</div>
+          <input class="sm-inp" id="sm-toshi-mai" type="number" inputmode="numeric" value="0" min="0" oninput="calcSM()">
+        </div>
+        <div class="sm-field">
+          <div class="sm-field-lbl">回収枚数</div>
+          <input class="sm-inp" id="sm-kaishu" type="number" inputmode="numeric" value="0" min="0" oninput="calcSM()">
+        </div>
+        <div class="sm-field">
+          <div class="sm-field-lbl">投資千円札枚数</div>
+          <input class="sm-inp" id="sm-bills" type="number" inputmode="numeric" value="0" min="0" oninput="calcSM()">
+        </div>
+        <div class="sm-field">
+          <div class="sm-field-lbl">千円の貸出枚数</div>
+          <input class="sm-inp" id="sm-rate" type="number" inputmode="numeric" value="50" min="1" oninput="calcSM()">
+        </div>
+      </div>
+
+      <div class="sm-formula">
+        <div class="sm-formula-row">
+          <span class="sm-f-lbl">回収枚数</span>
+          <span class="sm-f-val" id="smf-kaishu">0</span>
+        </div>
+        <div class="sm-formula-row">
+          <span class="sm-f-lbl">千円投資（<span id="smf-bills-eq">0×50</span>）</span>
+          <span class="sm-f-val" id="smf-bills-total">− 0</span>
+        </div>
+        <div class="sm-formula-row">
+          <span class="sm-f-lbl">追加投資枚数</span>
+          <span class="sm-f-val" id="smf-toshi">− 0</span>
+        </div>
+        <div class="sm-formula-div"></div>
+        <div class="sm-formula-row">
+          <span class="sm-f-lbl" style="font-weight:800;color:var(--text);">総投資</span>
+          <span class="sm-f-val" style="color:var(--gold);" id="smf-total-inv">0 枚</span>
+        </div>
+      </div>
+
+      <div class="sm-result" id="sm-result-box">
+        <span class="sm-r-lbl">差枚</span>
+        <span class="sm-r-val" id="sm-result-val">0</span>
+      </div>
+    </div>
+
+    <div class="obtns">
+      <button class="obtn cancel" onclick="hideOv('ov-end')">キャンセル</button>
+      <button class="obtn save" onclick="saveEnd()">保存して終了</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ━━ 過去データ登録オーバーレイ ━━ -->
+<div class="ov" id="ov-past">
+  <div class="obox">
+    <div class="otitle">過去データを登録</div>
+    <div class="ef-sec">
+      <div class="ef-ttl">基本情報</div>
+      <div class="ef-grid">
+        <div class="ef-row" style="grid-column:span 2">
+          <div class="ef-lbl">日付</div>
+          <input class="ef-inp date-inp" id="pt-date" type="date">
+        </div>
+        <div class="ef-row">
+          <div class="ef-lbl">実プレイG数</div>
+          <input class="ef-inp" id="pt-g" type="number" inputmode="numeric" value="0" min="0">
+        </div>
+        <div class="ef-row">
+          <div class="ef-lbl">差枚（直接入力）</div>
+          <input class="ef-inp" id="pt-sm" type="number" inputmode="numeric" value="0" oninput="ptSMColor()">
+        </div>
+      </div>
+    </div>
+    <div class="ef-sec">
+      <div class="ef-ttl">小役</div>
+      <div class="be-grid" id="pt-roles-grid"></div>
+    </div>
+    <div class="ef-sec">
+      <div class="ef-ttl">ボーナス</div>
+      <div id="pt-bonus-wrap"></div>
+    </div>
+    <div class="obtns">
+      <button class="obtn cancel" onclick="hideOv('ov-past')">キャンセル</button>
+      <button class="obtn save" onclick="savePast()">登録する</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ━━ TOAST ━━ -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+
+<!-- エクスポート機能 -->
+<script>
+function exportData() {
+  if (!sessions.length) { showToast('データがありません'); return; }
+  const json = JSON.stringify(sessions, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `slot-counter-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
