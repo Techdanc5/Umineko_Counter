@@ -8,13 +8,20 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="小役カウンタ">
+  <meta name="apple-mobile-web-app-title" content="小役カウンターforうみねこ2">
   <title>小役カウンターforうみねこのなく頃に2</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
-  <script async src="<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8731926492825404" crossorigin="anonymous"></script>
 
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       Google AdSense
+       ① https://www.google.com/adsense でアカウント取得
+       ② 審査通過後、下記を自分のコードに差し替えてください
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
 </head>
 <body>
 
@@ -100,7 +107,7 @@
   <div class="ph" style="display:block">⚙️ 設定</div>
   <div class="set-section">
     <div class="set-lbl">機種プリセット</div>
-    <div class="set-val">黄金郷〜白頭の軌跡〜</div>
+    <div class="set-val">Lうみねこのなく頃に2</div>
     <div class="set-note">機種追加は今後のアップデートで対応予定</div>
   </div>
   <div class="set-section">
@@ -118,6 +125,16 @@
   <div class="set-section" style="margin-top:10px;">
     <div class="set-lbl">バージョン</div>
     <div class="set-val" style="font-size:13px;">v1.0.0</div>
+  </div>
+  <div class="set-section" style="margin-top:10px;">
+    <div class="set-lbl" style="margin-bottom:10px;">法的情報</div>
+    <a href="privacy.html"
+      style="display:flex;align-items:center;justify-content:space-between;
+             padding:12px 14px;background:var(--s3);border:1.5px solid var(--br2);
+             border-radius:10px;color:var(--text);text-decoration:none;font-size:14px;font-weight:700;">
+      <span>🔒 プライバシーポリシー</span>
+      <span style="color:var(--muted);font-size:18px;">›</span>
+    </a>
   </div>
 </div>
 
@@ -256,6 +273,11 @@ function exportData() {
   URL.revokeObjectURL(url);
 }
 </script>
+
+<!-- プライバシーポリシーリンク -->
+<div style="text-align:center;padding:10px 0 4px;font-size:11px;">
+  <a href="privacy.html" style="color:#586080;text-decoration:none;">プライバシーポリシー</a>
+</div>
 
 </body>
 </html>
